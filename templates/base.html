@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}MindSpace - Advanced Social Analyzer{% endblock %}
+    </title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    {% block head_extra %}{% endblock %}
+    <style>
+      /* --- THEME VARIABLES --- */
+      /* Default: LIGHT MODE (White/Silver/Blue - High Contrast) */
+      :root {
+        --background-start: #f8f9fa;
+        --background-mid: #e9ecef;
+        --background-end: #dee2e6;
+        --card-bg: #ffffff;
+        --border-color: rgba(0, 0, 0, 0.1);
+        --text-color: #212529; /* Black Text */
+        --text-muted: #6c757d;
+        --accent-color-1: #007bff;
+        --accent-color-2: #20c997;
+        --color-danger: #dc3545;
+        --color-success: #28a745;
+        --color-warning: #ffc107;
+        --color-info: #17a2b8;
+        --theme-invert-filter: 0;
+      }
+
+      /* DARK MODE (Black/Red/White Theme) - Enforced Contrast */
+      html[data-theme="dark"] {
+        --background-start: #141414;
+        --background-mid: #1f1f1f;
+        --background-end: #2a2a2a;
+        --card-bg: rgba(40, 40, 40, 0.98);
+        --border-color: rgba(255, 255, 255, 0.15);
+        --text-color: #ffffff; /* ENFORCED PURE WHITE */
+        --text-muted: #e0e0e0;
+        --accent-color-1: #dc2626;
+        --accent-color-2: #845ef7;
+        --color-danger: #ff6b6b;
+        --color-success: #69db7c;
+        --color-warning: #ffd43b;
+        --color-info: #4c6ef5;
+        --theme-invert-filter: 1;
+      }
+
+      /* ------------------- Base Styling ------------------- */
+      body {
+        background: linear-gradient(
+          135deg,
+          var(--background-start),
+          var(--background-mid),
+          var(--background-end)
+        );
+        background-size: 400% 400%;
+        font-family: "Poppins", sans-serif;
+        min-height: 100vh;
+        color: var(--text-color);
+        padding-top: 5rem;
+        padding-bottom: 2rem;
+      }
+      .main-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      /* FIX: Apply accent color to ALL headings inside the main content card */
+      .main-card h1,
+      .main-card h2,
+      .main-card h3,
+      .main-card h4,
+      .main-card h5 {
+        color: var(--accent-color-1) !important;
+      }
+
+      .navbar {
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+      .navbar-brand {
+        font-weight: 700;
+        color: var(--accent-color-1) !important;
+        font-size: 1.5rem;
+      }
+      .nav-link {
+        color: var(--text-muted) !important;
+        border-radius: 5px;
+        margin: 0 5px;
+      }
+      .nav-link:hover {
+        color: var(--text-color) !important;
+        background-color: var(--background-mid);
+      }
+      .nav-link.active {
+        color: var(--accent-color-1) !important;
+        font-weight: 600;
+        border-bottom: 2px solid var(--accent-color-1);
+      }
+
+      /* Input/Form styling */
+      .form-label {
+        color: var(--text-color);
+        font-weight: 500;
+      }
+      .form-control,
+      .input-group-text {
+        background-color: var(--background-start);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+      }
+      .form-control::placeholder {
+        color: var(--text-muted);
+      }
+      .form-control:focus {
+        border-color: var(--accent-color-1);
+        box-shadow: 0 0 0 0.25rem var(--accent-color-1) 25;
+        background-color: var(--card-bg);
+      }
+
+      /* Dropdown menu styling */
+      .dropdown-menu {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+      }
+      .dropdown-item {
+        color: var(--text-color) !important;
+      }
+      .dropdown-item:hover {
+        background-color: var(--background-mid);
+      }
+
+      /* FIX: ENFORCE WHITE TEXT EVERYWHERE IN DARK MODE */
+      html[data-theme="dark"] .text-muted,
+      html[data-theme="dark"] .form-control::placeholder,
+      html[data-theme="dark"] .nav-link,
+      html[data-theme="dark"] .dropdown-item,
+      html[data-theme="dark"] .fas,
+      html[data-theme="dark"] .fab,
+      html[data-theme="dark"] .form-control,
+      html[data-theme="dark"] .input-group-text,
+      html[data-theme="dark"] p,
+      html[data-theme="dark"] a:not(.btn),
+      html[data-theme="dark"] li,
+      html[data-theme="dark"] ul,
+      html[data-theme="dark"] ol,
+      html[data-theme="dark"] span,
+      html[data-theme="dark"] strong {
+        color: var(--text-color) !important;
+      }
+
+      html[data-theme="dark"] .btn-close {
+        filter: invert(1);
+      }
+
+      /* ABSOLUTE MODAL CONTRAST FIX: Target modal elements for styling */
+      .modal-content {
+        background: var(--card-bg); /* Use theme card background */
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+      }
+      .modal-content .text-muted {
+        color: var(--text-muted) !important;
+      }
+      html[data-theme="dark"] .modal-content .text-muted,
+      html[data-theme="dark"] .modal-content p {
+        color: var(
+          --text-color
+        ) !important; /* Force white text in dark modal */
+      }
+      .btn-platform {
+        background: var(--background-mid);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+      }
+      html[data-theme="dark"] .btn-platform {
+        background: var(--background-mid);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+      }
+
+      /* Theme Toggle Switch */
+      .theme-switch {
+        width: 60px;
+        height: 34px;
+        background-color: var(--background-mid);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .theme-switch::before {
+        content: "\f185"; /* Sun icon (Light) */
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        top: 5px;
+        left: 6px;
+        color: var(--color-warning);
+        font-size: 18px;
+        transition: transform 0.3s, content 0.3s, color 0.3s;
+      }
+      html[data-theme="dark"] .theme-switch::before {
+        content: "\f186"; /* Moon icon (Dark) */
+        color: var(--text-color);
+        transform: translateX(25px);
+      }
+
+      .footer {
+        border-top: 1px solid var(--border-color);
+        padding-top: 1rem;
+        margin-top: 3rem;
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+  <body onload="setInitialTheme()">
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container-fluid container">
+        <a class="navbar-brand" href="/">🧠 MindSpace</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span
+            class="navbar-toggler-icon"
+            style="filter: invert(var(--theme-invert-filter))"
+          ></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/' %}active{% endif %}"
+                href="/"
+                >Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/history' %}active{% endif %}"
+                href="/history"
+                >History</a
+              >
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Details
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="/how_it_works">How It Works</a>
+                </li>
+                <li><a class="dropdown-item" href="/about">About</a></li>
+                <li><a class="dropdown-item" href="/faq">FAQ</a></li>
+                <li>
+                  <hr
+                    class="dropdown-divider"
+                    style="border-color: var(--border-color)"
+                  />
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    style="color: var(--color-danger)"
+                    href="/risk_info"
+                    >Risk Policy & Warning</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item d-flex align-items-center me-3">
+              <div
+                id="theme-toggle"
+                class="theme-switch"
+                onclick="toggleTheme()"
+              ></div>
+            </li>
+
+            {% if current_user.is_authenticated %}
+            <li class="nav-item">
+              <span
+                class="nav-link"
+                style="color: var(--accent-color-1) !important"
+                >Welcome, {{ current_user.username }}</span
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="btn btn-sm ms-2"
+                href="{{ url_for('logout') }}"
+                style="background-color: var(--accent-color-2); color: white"
+              >
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a
+                class="btn btn-sm ms-2"
+                href="{{ url_for('login') }}"
+                style="background-color: var(--accent-color-2); color: white"
+              >
+                <i class="fas fa-sign-in-alt"></i> Login
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="btn btn-sm ms-2"
+                href="{{ url_for('register') }}"
+                style="background-color: var(--accent-color-1); color: white"
+              >
+                Register
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-4">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="row">
+        <div class="col-md-12">
+          {% for category, message in messages %}
+          <div
+            class="alert alert-{{ category }} alert-dismissible fade show"
+            role="alert"
+          >
+            {{ message }}
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+            ></button>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %} {% endwith %} {% block content %}{% endblock %}
+    </div>
+
+    <div
+      class="modal fade"
+      id="platformModal"
+      tabindex="-1"
+      aria-labelledby="platformModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5
+              class="modal-title"
+              id="platformModalLabel"
+              style="color: var(--accent-color-1)"
+            >
+              Select a Platform to Analyze
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4 text-center">
+            <p class="text-muted">
+              Choose a public social media profile to begin the analysis.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <a href="/analyze/reddit" class="btn btn-platform w-100 p-3"
+                  ><i
+                    class="fab fa-reddit-alien fa-2x d-block mb-1"
+                    style="color: #ff4500"
+                  ></i>
+                  Reddit</a
+                >
+              </div>
+              <div class="col-md-4">
+                <a href="/analyze/instagram" class="btn btn-platform w-100 p-3"
+                  ><i
+                    class="fab fa-instagram fa-2x d-block mb-1"
+                    style="color: #e4405f"
+                  ></i>
+                  Instagram</a
+                >
+              </div>
+              <div class="col-md-4">
+                <a href="/analyze/twitter" class="btn btn-platform w-100 p-3"
+                  ><i
+                    class="fab fa-twitter fa-2x d-block mb-1"
+                    style="color: #1da1f2"
+                  ></i>
+                  Twitter/X</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer text-center mt-5">
+      <div class="container">
+        <p class="mb-1">&copy; 2024 MindSpace. All rights reserved.</p>
+        <p class="small">
+          <a href="/privacy" class="text-muted mx-2">Privacy Policy</a> |
+          <a href="/terms" class="text-muted mx-2">Terms of Service</a> |
+          <a href="/contact" class="text-muted mx-2">Contact Us</a>
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Theme Toggle Logic
+      function toggleTheme() {
+        const currentTheme =
+          document.documentElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "light" ? "dark" : "light";
+        setTheme(newTheme);
+      }
+
+      function setTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        localStorage.setItem("theme", theme);
+
+        // Custom event to signal results page to redraw chart
+        window.dispatchEvent(new Event("themechange"));
+      }
+
+      function setInitialTheme() {
+        // Defaulting to Light Theme
+        const preferredTheme = localStorage.getItem("theme") || "light";
+        setTheme(preferredTheme);
+      }
+    </script>
+    {% block script_extra %}{% endblock %}
+  </body>
+</html>

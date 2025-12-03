@@ -1,272 +1,209 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MindSpace - Advanced Social Analyzer</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-    :root {
-        --background-start: #0f0c29; --background-mid: #302b63; --background-end: #24243e;
-        --card-bg: rgba(30, 30, 50, 0.85); --border-color: rgba(255, 255, 255, 0.15);
-        --text-color: #ffffff; --text-muted: #c0c0d0;
-        --accent-color-1: #ff47a6; --accent-color-2: #a259ff;
-        --color-danger: #ff5252; --color-success: #4caf50; --color-warning: #ffc107; 
-        --color-info: #2196f3; 
-    }
-    body {
-        background: linear-gradient(45deg, var(--background-start), var(--background-mid), var(--background-end));
-        background-size: 400% 400%; animation: gradientBG 15s ease infinite;
-        font-family: 'Poppins', sans-serif; min-height: 100vh; color: var(--text-color);
-        padding: 1rem;
-    }
-    @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-    .main-card {
-        background: var(--card-bg); border: 1px solid var(--border-color);
-        backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-        border-radius: 25px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    }
-    .card-header {
-        background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        font-weight: 700; font-size: 2.2rem; letter-spacing: 1px;
-        border-bottom: 1px solid var(--border-color); padding: 1.5rem; text-shadow: none;
-    }
-    .form-label {
-        color: var(--text-color) !important;
-    }
-    .form-control {
-        background-color: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);
-        color: var(--text-color); padding: 12px;
-    }
-    .form-control::placeholder { color: rgba(255, 255, 255, 0.7); }
-    .form-control:focus {
-        background-color: rgba(0, 0, 0, 0.4); border-color: var(--accent-color-2);
-        box-shadow: 0 0 0 0.25rem rgba(162, 89, 255, 0.3); color: white;
-    }
-    .btn-social {
-        font-weight: 600; border: none; transition: all 0.3s ease; padding: 12px;
-        color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-shadow: none;
-    }
-    .btn-social:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
-    #redditBtn { background-image: linear-gradient(to right, #ff5700, #ff8c4a); }
-    #instaBtn { background-image: linear-gradient(to right, #833ab4, #fd1d1d, #fcb045); }
-    #twitterBtn { background-image: linear-gradient(to right, #1da1f2, #187bcd); }
-    .btn-social.loading .btn-text { opacity: 0; }
-    .btn-social.loading .spinner-border { display: inline-block; }
-    .btn-social .spinner-border { display: none; }
-    
-    /* Results Styling */
-    .results-header { animation: fadeInUp 0.5s ease-out; }
-    .summary-card {
-        background: rgba(0,0,0,0.2); border-radius: 15px;
-        border: 1px solid var(--border-color); padding: 1rem;
-        text-align: center; animation: fadeInUp 0.6s ease-out forwards;
-    }
-    .summary-card .value { font-size: 2rem; font-weight: 700; }
-    .summary-card .value.verdict-high { color: var(--color-danger); }
-    .summary-card .value.verdict-low { color: var(--color-success); }
-    .summary-card .label { font-size: 0.9rem; color: var(--text-muted); font-weight: 300; }
-    
-    #sentimentChartContainer {
-        padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 15px;
-        border: 1px solid var(--border-color); animation: fadeInUp 0.7s ease-out forwards;
-    }
+{% extends "base.html" %}
+{% block title %}Home - MindSpace Analysis Platform{% endblock %}
 
-    .post-list { 
-        /* Styling for the list container */
-    }
-    .post-item {
-        background: rgba(0,0,0,0.25); border-radius: 10px;
-        border-left: 4px solid var(--accent-color-2);
-        animation: fadeInUp 0.8s ease-out forwards;
-    }
-    .post-item, .post-item p, .post-item small {
-        color: #ffffff !important; 
-    }
-    .sentiment-badge { font-size: 0.75rem; padding: 0.3em 0.6em; margin-right: 5px; }
-    
-    .progress { 
-        height: 8px; 
-        background-color: rgba(255, 255, 255, 0.15); 
-    }
+{% block content %}
+<div class="card main-card">
+    <div class="card-body p-4 p-md-5 text-center">
 
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-</style>
-</head>
-<body>
-<div class="container my-4">
-    <div class="card main-card">
-        <div class="card-header text-center">🧠 MindSpace</div>
-        <div class="card-body p-4 p-md-5">
+        <!-- HERO SECTION -->
+        <h1 class="display-3 fw-bold mb-3" style="color: var(--accent-color-1);">
+            MindSpace
+        </h1>
+        <p class="lead mb-3" style="color: var(--text-muted); max-width: 650px; margin: 0 auto;">
+            AI-powered social media language analysis for sentiment, risk indicators, and behavioural patterns.
+        </p>
 
-            <div class="text-center mb-5">
-                <h2 class="display-5 fw-bold" style="color: var(--text-color);">Analyze Social Profiles Instantly</h2>
-                <p class="lead" style="color: var(--text-muted);">
-                    Enter a public username from Reddit, Instagram, or Twitter to generate a sentiment and language pattern analysis.
-                </p>
-            </div>
-            <hr style="border-color: var(--border-color); opacity: 0.25;">
+        <!-- SMALL BADGE STRIP -->
+        <div class="d-flex justify-content-center flex-wrap gap-2 mt-3">
+            <span class="badge rounded-pill" style="background-color: var(--background-mid); border: 1px solid var(--border-color); color: var(--text-color);">
+                <i class="fas fa-brain me-1"></i> ML + NLP Powered
+            </span>
+            <span class="badge rounded-pill" style="background-color: var(--background-mid); border: 1px solid var(--border-color); color: var(--text-color);">
+                <i class="fas fa-shield-alt me-1"></i> Non-Intrusive, Public Data Only
+            </span>
+            <span class="badge rounded-pill" style="background-color: var(--background-mid); border: 1px solid var(--border-color); color: var(--text-color);">
+                <i class="fas fa-file-alt me-1"></i> PDF Reports & History
+            </span>
+        </div>
 
-            <div class="row g-4 mt-5">
-                <div class="col-lg-4 col-md-12">
-                    <form id="redditForm" action="/predict_reddit" method="POST" onsubmit="showLoading('redditBtn')">
-                        <label class="form-label"><strong><i class="fab fa-reddit-alien"></i> Reddit Analysis</strong></label>
-                        <div class="input-group">
-                            <input class="form-control" type="text" name="username" placeholder="Enter username">
-                            <button type="submit" class="btn btn-social" id="redditBtn">
-                                <span class="btn-text">Analyze</span>
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <form id="instagramForm" action="/predict_instagram" method="POST" onsubmit="showLoading('instaBtn')">
-                        <label class="form-label"><strong><i class="fab fa-instagram"></i> Instagram Analysis</strong></label>
-                         <div class="input-group">
-                            <input class="form-control" type="text" name="username" placeholder="Enter username">
-                            <button type="submit" class="btn btn-social" id="instaBtn">
-                                <span class="btn-text">Analyze</span>
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <form id="twitterForm" action="/predict_twitter" method="POST" onsubmit="showLoading('twitterBtn')">
-                        <label class="form-label"><strong><i class="fab fa-twitter"></i> Twitter Analysis</strong></label>
-                        <div class="input-group">
-                            <input class="form-control" type="text" name="twitter_username" placeholder="Enter username">
-                            <button type="submit" class="btn btn-social" id="twitterBtn">
-                                <span class="btn-text">Analyze</span>
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <hr style="border-color: var(--border-color); opacity: 0.2; margin: 2.5rem auto; max-width: 380px;">
 
-            {% if error %}
-                <div class="alert alert-danger mt-4">{{ error }}</div>
-            {% endif %}
+        <!-- CTA BUTTONS -->
+        <div class="d-flex flex-column flex-md-row justify-content-center">
+            <button type="button"
+                class="btn btn-lg fw-bold px-5 py-3 mb-3 mb-md-0 me-md-3"
+                style="background-color: var(--accent-color-2); color: white; box-shadow: 0 8px 20px rgba(32, 201, 151, 0.4);"
+                data-bs-toggle="modal" data-bs-target="#platformModal">
+                <i class="fas fa-search me-2"></i> Start New Analysis
+            </button>
 
-            {% if results %}
-            <div id="results-section" class="mt-5">
-                 <hr style="border-color: var(--border-color); opacity: 0.25; margin-bottom: 3rem !important;">
+            <a href="#project-details"
+               class="btn btn-lg fw-bold px-5 py-3"
+               style="background-color: var(--background-mid); border: 1px solid var(--border-color); color: var(--text-color);">
+                <i class="fas fa-info-circle me-2"></i> View Project Details
+            </a>
+        </div>
 
-                <h3 class="text-center mb-4 results-header" style="color:white">Analysis for <strong style="color: var(--accent-color-1);">{{ user }}</strong> on {{ source }}</h3>
-                
-                <div class="row g-3 mb-3 text-center">
-                    <div class="col-md-6"><div class="summary-card h-100"><div class="value {% if results.verdict == 'High Concern' %}verdict-high{% else %}verdict-low{% endif %}">{{ results.verdict }}</div><div class="label">Overall Verdict</div></div></div>
-                    <div class="col-md-6"><div class="summary-card h-100"><div class="value" style="color: var(--color-danger);">{{ "%.1f"|format(results.aggregates.avg_abnormal_prob * 100) }}%</div><div class="label">Avg. Abnormal Prob.</div></div></div>
-                </div>
+        {% if not current_user.is_authenticated %}
+        <p class="text-muted small mt-4">
+            <a href="{{ url_for('login') }}" style="color: var(--accent-color-1);">Log in</a> or
+            <a href="{{ url_for('register') }}" style="color: var(--accent-color-1);">Register</a>
+            to save and revisit your analysis history.
+        </p>
+        {% endif %}
 
-                <div class="row g-3 mb-4 text-center">
-                    <div class="col-md-4 col-6"><div class="summary-card h-100"><div class="value" style="color: var(--color-warning);">{{ "%.1f"|format(results.aggregates.avg_neg_sentiment * 100) }}%</div><div class="label">Avg. Negative Sentiment</div></div></div>
-                    <div class="col-md-4 col-6"><div class="summary-card h-100"><div class="value" style="color: var(--color-success);">{{ "%.1f"|format(results.aggregates.avg_pos_sentiment * 100) }}%</div><div class="label">Avg. Positive Sentiment</div></div></div>
-                    <div class="col-md-4 col-12"><div class="summary-card h-100"><div class="value" style="color: var(--color-info);">{{ "%.1f"|format(results.aggregates.avg_neu_sentiment * 100) }}%</div><div class="label">Avg. Neutral Sentiment</div></div></div>
-                </div>
+        <!-- PROJECT DETAILS SECTION -->
+        <div id="project-details" class="mt-5 pt-4 text-center">
 
-                <div class="mb-4" id="sentimentChartContainer">
-                    <canvas id="sentimentChart" style="height: 300px;"></canvas>
-                </div>
-                
-                <div class="mt-4" style="animation: fadeInUp 0.8s ease-out forwards;">
-                    <h5 class="mb-3" style="color: white">Analyzed Posts ({{ results.aggregates.post_count }})</h5>
-                    <div class="post-list">
-                        {% for post in results.posts %}
-                        <div class="p-3 mb-3 post-item">
-                            <p class="mb-2 fst-italic">"{{ post.text }}"</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="mb-1"><span class="badge rounded-pill text-bg-danger sentiment-badge">Negative: {{ "%.0f"|format(post.sentiment.neg * 100) }}%</span></div>
-                                    <div class="mb-1"><span class="badge rounded-pill text-bg-success sentiment-badge">Positive: {{ "%.0f"|format(post.sentiment.pos * 100) }}%</span></div>
-                                    <div><span class="badge rounded-pill text-bg-info sentiment-badge">Neutral: {{ "%.0f"|format(post.sentiment.neu * 100) }}%</span></div>
-                                </div>
-                                <div class="w-25">
-                                    <small>Abnormal Prob.</small> 
-                                    <div class="progress">
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ post.prob_abnormal * 100 }}%;" aria-valuenow="{{ post.prob_abnormal * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
+            <!-- SECTION TITLE -->
+            <h2 class="mb-2" style="color: var(--accent-color-2);">
+                MindSpace at a Glance
+            </h2>
+            <p class="mb-4" style="color: var(--text-muted); max-width: 650px; margin: 0 auto;">
+                A full-stack project that combines scraping, machine learning, sentiment analysis,
+                and interactive visualizations inside a themed web experience.
+            </p>
+
+            <!-- FEATURE HIGHLIGHT CARDS (ONE BELOW ONE, BUT VISUAL) -->
+            <div class="mx-auto" style="max-width: 900px;">
+                <div class="row g-4">
+
+                    <div class="col-md-4">
+                        <div class="h-100 p-3 main-card" style="background: var(--background-mid); border: 1px solid var(--border-color);">
+                            <div class="mb-2" style="font-size: 2rem;">
+                                <i class="fab fa-reddit-alien me-2" style="color:#ff4500;"></i>
+                                <i class="fab fa-instagram me-2" style="color:#e4405f;"></i>
+                                <i class="fab fa-twitter me-2" style="color:#1da1f2;"></i>
                             </div>
+                            <h5 style="color: var(--accent-color-1);">Multi-Platform Scraping</h5>
+                            <p class="small mb-0" style="color: var(--text-muted);">
+                                Live data from Reddit, Instagram, and Twitter/X using AsyncPRAW, Apify, and Playwright
+                                to gather public posts for analysis.
+                            </p>
                         </div>
-                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="h-100 p-3 main-card" style="background: var(--background-mid); border: 1px solid var(--border-color);">
+                            <div class="mb-2" style="font-size: 2rem;">
+                                <i class="fas fa-brain me-2"></i>
+                            </div>
+                            <h5 style="color: var(--accent-color-1);">Dual AI Engine</h5>
+                            <p class="small mb-0" style="color: var(--text-muted);">
+                                Custom Naïve Bayes abnormality model (model_nb.pkl) plus NLTK VADER sentiment scores
+                                for Neg/Pos/Neu profiling.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="h-100 p-3 main-card" style="background: var(--background-mid); border: 1px solid var(--border-color);">
+                            <div class="mb-2" style="font-size: 2rem;">
+                                <i class="fas fa-file-download me-2"></i>
+                            </div>
+                            <h5 style="color: var(--accent-color-1);">Reports & History</h5>
+                            <p class="small mb-0" style="color: var(--text-muted);">
+                                Interactive graphs on the results page and professionally formatted PDF reports
+                                stored in your analysis history.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- NICE DIVIDER -->
+            <hr style="border-color: var(--border-color); opacity: 0.15; margin: 3rem auto; max-width: 320px;">
+
+            <!-- PIPELINE / TIMELINE SECTION (ONE BELOW ONE, CENTERED) -->
+            <h3 class="mb-3" style="color: var(--accent-color-2);">
+                End-to-End Pipeline
+            </h3>
+            <p class="mb-4" style="color: var(--text-muted); max-width: 650px; margin: 0 auto;">
+                Every analysis you run follows the same clear pipeline:
+            </p>
+
+            <div class="mx-auto text-start" style="max-width: 700px;">
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <span class="badge rounded-circle"
+                              style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+                                     background-color: var(--accent-color-1); color: var(--text-color);">
+                            1
+                        </span>
+                    </div>
+                    <div>
+                        <h5 style="color: var(--accent-color-1); margin-bottom: 0.2rem;">
+                            Scrape Public Posts
+                        </h5>
+                        <p class="small mb-0" style="color: var(--text-muted);">
+                            MindSpace fetches recent public comments / posts using platform-specific tools,
+                            respecting the profile's visibility and rate limits.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <span class="badge rounded-circle"
+                              style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+                                     background-color: var(--accent-color-1); color: var(--text-color);">
+                            2
+                        </span>
+                    </div>
+                    <div>
+                        <h5 style="color: var(--accent-color-1); margin-bottom: 0.2rem;">
+                            Run ML & Sentiment Models
+                        </h5>
+                        <p class="small mb-0" style="color: var(--text-muted);">
+                            Each post is evaluated for abnormal probability and Neg/Pos/Neu sentiment.
+                            Averages and trends are computed for the full dataset.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <div class="me-3">
+                        <span class="badge rounded-circle"
+                              style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+                                     background-color: var(--accent-color-1); color: var(--text-color);">
+                            3
+                        </span>
+                    </div>
+                    <div>
+                        <h5 style="color: var(--accent-color-1); margin-bottom: 0.2rem;">
+                            Visualize & Save
+                        </h5>
+                        <p class="small mb-0" style="color: var(--text-muted);">
+                            Results are shown with charts, verdict badges, and detailed post-level insights.
+                            Logged-in users can download a full PDF and revisit past runs in History.
+                        </p>
                     </div>
                 </div>
             </div>
-            <script>
-                const ctx = document.getElementById('sentimentChart').getContext('2d');
-                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                gradient.addColorStop(0, 'rgba(255, 82, 82, 0.6)');
-                gradient.addColorStop(1, 'rgba(255, 82, 82, 0.05)');
 
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: {{ results.graph_data.labels | tojson }},
-                        datasets: [{
-                            label: 'Abnormal Probability',
-                            data: {{ results.graph_data.abnormal_prob | tojson }},
-                            borderColor: 'rgba(255, 82, 82, 1)',
-                            backgroundColor: gradient,
-                            tension: 0.4,
-                            fill: true,
-                            yAxisID: 'y'
-                        }, {
-                            label: 'Negative Sentiment',
-                            data: {{ results.graph_data.neg_sentiment | tojson }},
-                            borderColor: 'rgba(255, 193, 7, 1)',
-                            tension: 0.4,
-                            fill: false,
-                            yAxisID: 'y'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 1.0,
-                                ticks: { color: 'rgba(255, 255, 255, 0.7)' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                            },
-                            x: {
-                                ticks: { color: 'rgba(255, 255, 255, 0.7)' },
-                                grid: { display: false }
-                            }
-                        },
-                        plugins: {
-                            legend: { labels: { color: 'rgba(255, 255, 255, 0.9)' } }
-                        }
-                    }
-                });
-            </script>
-            {% endif %}
+            <!-- FINAL NOTE -->
+            <p class="small text-muted mt-4 mb-0" style="max-width: 650px; margin: 0 auto;">
+                MindSpace is a technical demonstration tool. Its outputs are statistical indicators only and
+                must <strong>not</strong> be treated as a medical or clinical diagnosis.
+            </p>
+
         </div>
     </div>
 </div>
 
+<!-- Smooth Scroll -->
 <script>
-function showLoading(buttonId) {
-    const btn = document.getElementById(buttonId);
-    if (btn) {
-        btn.classList.add('loading');
-        btn.disabled = true;
-        // Disable other buttons too
-        document.querySelectorAll('.btn-social').forEach(b => {
-            if (b.id !== buttonId) {
-                b.disabled = true;
-            }
+document.addEventListener('DOMContentLoaded', () => {
+    const link = document.querySelector('a[href="#project-details"]');
+    const section = document.getElementById('project-details');
+
+    if (link && section) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            section.scrollIntoView({ behavior: "smooth" });
         });
     }
-}
+});
 </script>
-</body>
-</html>
+{% endblock %}

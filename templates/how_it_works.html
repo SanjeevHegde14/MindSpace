@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}How MindSpace Works{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card main-card">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="text-center mb-4" style="color: var(--accent-color-1);">
+                    <i class="fas fa-cog me-3"></i> The Technical Pipeline: From Scraping to Verdict
+                </h1>
+                <p class="lead text-center mb-5" style="color: var(--text-muted);">
+                    The analysis runs through a multi-stage, synchronous process to ensure accuracy and data integrity before rendering the results.
+                </p>
+
+                <hr style="border-color: var(--border-color); opacity: 0.25; margin: 3rem 0;">
+
+                <!-- 1. DATA ACQUISITION -->
+                <h3 style="color: var(--accent-color-2);">1. Data Acquisition (Real-Time Scraping)</h3>
+                <p class="text-color">
+                    Data fetching is handled by specialized Python libraries to bypass strict public UI limitations and extract only public content:
+                </p>
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item"
+                        style="background: var(--background-mid); border: 1px solid var(--border-color); color: var(--text-color); margin-bottom: 5px;">
+                        <i class="fab fa-reddit-alien me-2" style="color: #ff4500;"></i>
+                        <strong>Reddit:</strong>
+                        Uses <strong>AsyncPRAW</strong> in a synchronous wrapper to pull recent comment history efficiently.
+                        It requires valid Reddit API credentials (Client ID, Client Secret, and User Agent).
+                    </li>
+                    <li class="list-group-item"
+                        style="background: var(--background-mid); border: 1px solid var(--border-color); color: var(--text-color); margin-bottom: 5px;">
+                        <i class="fab fa-instagram me-2" style="color: #e4405f;"></i>
+                        <strong>Instagram:</strong>
+                        Uses the <strong>ApifyClient</strong> and the
+                        <code>apify/instagram-post-scraper</code> actor to fetch public post captions and timestamps
+                        for a given username or profile URL. This requires an Apify API token.
+                    </li>
+                    <li class="list-group-item"
+                        style="background: var(--background-mid); border: 1px solid var(--border-color); color: var(--text-color); margin-bottom: 5px;">
+                        <i class="fab fa-twitter me-2" style="color: #1da1f2;"></i>
+                        <strong>Twitter/X:</strong>
+                        Uses <strong>Playwright</strong> (headless Chromium automation) to open the user’s public profile,
+                        scroll the timeline, and extract visible tweet text plus timestamps while handling dynamic loading.
+                    </li>
+                </ul>
+
+                <!-- 2. DUAL ANALYSIS MODEL -->
+                <h3 class="mt-5" style="color: var(--accent-color-2);">2. Dual Analysis Model</h3>
+                <p class="text-color">
+                    The scraped text array is passed into the <code>analyze_posts</code> function, where each post is evaluated in two complementary ways:
+                </p>
+
+                <div class="row g-4 mt-2">
+                    <div class="col-md-6">
+                        <div class="p-3 main-card h-100"
+                             style="border-left: 3px solid var(--color-danger); background: var(--background-mid); box-shadow: none;">
+                            <h5 style="color: var(--color-danger);">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                ML Pattern Detection (Abnormal Probability)
+                            </h5>
+                            <p class="small text-muted mb-0">
+                                The core machine learning model (<code>model_nb.pkl</code>) is a
+                                <strong>Naïve Bayes classifier</strong> trained on linguistic features associated with
+                                potentially concerning or distress-related posts.
+                                For each text, it outputs an <strong>abnormal probability score</strong> between 0 and 1.
+                                MindSpace then averages these scores across all posts and flags
+                                <em>High Concern</em> if the average exceeds the threshold of <strong>0.55</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 main-card h-100"
+                             style="border-left: 3px solid var(--color-warning); background: var(--background-mid); box-shadow: none;">
+                            <h5 style="color: var(--color-warning);">
+                                <i class="fas fa-smile me-2"></i>
+                                Sentiment Analysis (VADER)
+                            </h5>
+                            <p class="small text-muted mb-0">
+                                In parallel, the <strong>NLTK VADER</strong> sentiment engine computes
+                                <strong>Negative</strong>, <strong>Positive</strong>, and <strong>Neutral</strong>
+                                scores for each post. These values are averaged across all content to build the
+                                overall emotional profile and feed the trend graphs shown in the results dashboard
+                                and PDF report.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. PERSISTENCE & REPORTING -->
+                <h3 class="mt-5" style="color: var(--accent-color-2);">3. Persistence and Reporting</h3>
+                <p class="text-color">
+                    After analysis, MindSpace aggregates everything into a structured JSON object containing:
+                </p>
+                <ul class="text-color">
+                    <li>All per-post details (text, abnormal probability, Neg/Pos/Neu sentiment, and date).</li>
+                    <li>Global aggregates (averages, thresholds, total posts analyzed).</li>
+                    <li>Pre-computed graph data used for visualizations.</li>
+                </ul>
+                <p class="text-color">
+                    When you are logged in, this JSON is stored in the <strong>AnalysisHistory</strong> table
+                    along with metadata such as platform, username, and verdict. From the history page you can:
+                </p>
+                <ul class="text-color">
+                    <li>Reopen old analyses with their summary metrics and top posts.</li>
+                    <li>Generate a downloadable <strong>PDF report</strong> that includes the verdict, averages,
+                        selected posts, and embedded graphs for offline review or documentation.</li>
+                </ul>
+                <p class="text-color mb-0">
+                    At every step, MindSpace treats the output as a <strong>technical risk indicator</strong> only.
+                    It is not designed or validated to replace professional diagnosis or clinical assessment.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

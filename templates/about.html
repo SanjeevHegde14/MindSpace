@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}About MindSpace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Introduction -->
+    <div class="main-card p-4 mb-4">
+        <h1 class="mb-3"><i class="fas fa-info-circle me-2"></i> About MindSpace</h1>
+        <p>
+            MindSpace is an advanced AI-powered platform designed to analyze public social media activity from
+            platforms like <strong>Reddit</strong>, <strong>Instagram</strong>, and <strong>Twitter/X</strong>. 
+            By combining Natural Language Processing (NLP), sentiment analysis, and machine learning, 
+            MindSpace identifies emotional patterns, behavioural indicators, and potential mental-health concerns 
+            based on the content people share online.
+        </p>
+    </div>
+
+    <!-- Objectives -->
+    <div class="main-card p-4 mb-4">
+        <h3><i class="fas fa-bullseye me-2"></i> Project Objectives</h3>
+        <ul>
+            <li>Analyze public posts from multiple social media platforms.</li>
+            <li>Identify mood patterns using sentiment analysis.</li>
+            <li>Predict abnormal or concerning behavioural tendencies using machine learning.</li>
+            <li>Provide detailed summaries, graphs, and post-by-post insights.</li>
+            <li>Allow users to save analysis history and download PDF reports.</li>
+        </ul>
+    </div>
+
+    <!-- System Workflow -->
+    <div class="main-card p-4 mb-4">
+        <h3><i class="fas fa-project-diagram me-2"></i> System Workflow</h3>
+        <ol>
+            <li class="mb-2">
+                <strong>User Input</strong> — The user selects a platform and enters a username or profile link.
+            </li>
+            <li class="mb-2">
+                <strong>Data Scraping</strong> — MindSpace retrieves the user’s public posts:
+                <ul>
+                    <li>Reddit: via asyncpraw API</li>
+                    <li>Instagram: via Apify Scraper</li>
+                    <li>Twitter/X: via Playwright browser automation</li>
+                </ul>
+            </li>
+            <li class="mb-2">
+                <strong>Sentiment Processing</strong> — Each post is analyzed using VADER
+                to determine positive, negative, and neutral sentiment scores.
+            </li>
+            <li class="mb-2">
+                <strong>ML-Based Detection</strong> — A trained Naive Bayes model estimates the probability
+                of abnormal behavioural expression in posts.
+            </li>
+            <li class="mb-2">
+                <strong>Visualization</strong> — The system generates trend graphs, average scores,
+                and a final verdict based on the analysis.
+            </li>
+            <li class="mb-2">
+                <strong>History & Reports</strong> — Logged-in users can store analyses and download 
+                professionally formatted PDF reports.
+            </li>
+        </ol>
+    </div>
+
+    <!-- Features -->
+    <div class="main-card p-4 mb-4">
+        <h3><i class="fas fa-star me-2"></i> Key Features</h3>
+        <ul>
+            <li>Multi-platform social media analysis.</li>
+            <li>AI-driven sentiment and behavioural scoring.</li>
+            <li>Real-time scraping of public posts.</li>
+            <li>Personal dashboard with saved analysis history.</li>
+            <li>PDF report generation with detailed post-level breakdowns.</li>
+        </ul>
+    </div>
+
+    <!-- Technologies Used -->
+    <div class="main-card p-4 mb-4">
+        <h3><i class="fas fa-tools me-2"></i> Technologies Used</h3>
+        <ul>
+            <li><strong>Backend:</strong> Flask, Python, SQLAlchemy, SQLite.</li>
+            <li><strong>Scraping:</strong> asyncpraw (Reddit), Apify API (Instagram), Playwright (Twitter/X).</li>
+            <li><strong>AI/NLP:</strong> Naive Bayes model, VADER sentiment analyzer.</li>
+            <li><strong>Frontend:</strong> Bootstrap, HTML5, CSS3, Font Awesome.</li>
+            <li><strong>Other:</strong> FPDF for PDF reports, dotenv for secure credentials.</li>
+        </ul>
+    </div>
+
+    <!-- Future Scope -->
+    <div class="main-card p-4 mb-4">
+        <h3><i class="fas fa-forward me-2"></i> Future Scope</h3>
+        <ul>
+            <li>Integration with additional platforms (YouTube, TikTok, Facebook).</li>
+            <li>Use of transformer-based models (BERT, RoBERTa) for improved accuracy.</li>
+            <li>Long-term emotional trend dashboards.</li>
+            <li>Personalized content recommendations based on mood.</li>
+            <li>Mental-health supportive resources and early-warning mechanisms.</li>
+        </ul>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="main-card p-4 mb-5">
+        <h3><i class="fas fa-check-circle me-2"></i> Conclusion</h3>
+        <p>
+            MindSpace bridges the gap between artificial intelligence and mental health awareness.
+            By deeply analyzing how people express themselves online, it offers meaningful, 
+            data-driven insights into emotional well-being. With its powerful features, modern UI, 
+            and real-time scraping capabilities, MindSpace stands as a valuable tool for researchers, 
+            psychologists, developers, and anyone seeking better understanding of digital behaviour.
+        </p>
+    </div>
+
+</div>
+{% endblock %}

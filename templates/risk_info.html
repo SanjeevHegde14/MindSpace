@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Risk Warning & Disclaimer{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card main-card">
+            <div class="card-body p-4 p-md-5">
+
+                <!-- MAIN HEADING -->
+                <h1 class="mb-3" style="color: var(--color-danger);">
+                    <i class="fas fa-exclamation-triangle me-3"></i>
+                    Important Risk Warning
+                </h1>
+                <p class="lead text-muted mb-4">
+                    A <strong>"High Concern"</strong> verdict is an algorithmic indicator only.  
+                    If you or someone you know is in crisis or at immediate risk, please seek professional help right away.
+                </p>
+
+                <hr style="border-color: var(--border-color); opacity: 0.3;">
+
+                <!-- SECTION 1: WHAT THE VERDICT MEANS -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">1. What the Verdict Means</h3>
+                <p class="text-color">
+                    The <strong>"High Concern"</strong> verdict indicates that the analyzed content shows
+                    linguistic patterns that are statistically similar to those found in training data
+                    associated with distress or risk-related language. This includes:
+                </p>
+                <ul class="text-color">
+                    <li>Higher-than-usual negative or self-referential wording.</li>
+                    <li>Repeated expressions of hopelessness or withdrawal.</li>
+                    <li>Patterns detected by the abnormality model (Naïve Bayes classifier).</li>
+                </ul>
+                <p class="text-color mb-3">
+                    This is a <strong>probability-based signal</strong> produced by machine learning and sentiment
+                    analysis. It is <strong>not</strong> a psychological diagnosis, clinical judgement, or confirmation
+                    of any condition.
+                </p>
+
+                <!-- SECTION 2: LIMITATIONS OF THE TOOL -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">2. Limitations of This Tool</h3>
+                <p class="text-color">
+                    MindSpace has several important limitations:
+                </p>
+                <ul class="text-color">
+                    <li>It only processes the <strong>public posts</strong> that were successfully scraped.</li>
+                    <li>It cannot see private messages, deleted posts, or offline behaviour.</li>
+                    <li>Models may be affected by sarcasm, jokes, cultural context, or incomplete data.</li>
+                    <li>Results can contain <strong>false positives</strong> or <strong>false negatives</strong>.</li>
+                </ul>
+                <p class="text-color mb-3">
+                    Because of these limitations, the output should be viewed as a <strong>technical signal</strong>,
+                    never as final evidence or a label placed on any person.
+                </p>
+
+                <!-- SECTION 3: PROFESSIONAL HELP -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">3. Professional Help & Next Steps</h3>
+                <p class="text-color">
+                    MindSpace is <strong>not</strong> a substitute for clinical, medical, or psychological advice.
+                    If the content you analyzed worries you, consider the following:
+                </p>
+                <ul class="text-color">
+                    <li>Encourage the person (or yourself) to talk to a <strong>licensed mental health professional</strong>.</li>
+                    <li>Reach out to a trusted family member, friend, or support network.</li>
+                    <li>Use local helplines or crisis services when immediate support is needed.</li>
+                </ul>
+                <p class="text-color mb-3">
+                    Only trained professionals can properly evaluate risk, provide a diagnosis, or recommend treatment.
+                </p>
+
+                <!-- SECTION 4: EMERGENCY SITUATIONS -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">4. In an Emergency</h3>
+                <p class="text-color mb-0">
+                    If you believe there is an immediate risk of harm to yourself or someone else:
+                </p>
+                <ul class="text-color">
+                    <li>Contact your <strong>local emergency number</strong> right away.</li>
+                    <li>Reach out to a <strong>crisis hotline</strong> available in your region.</li>
+                    <li>Seek help from nearby <strong>emergency services</strong>, hospital, or clinic.</li>
+                </ul>
+                <p class="text-color mb-0">
+                    Do not rely on this website or its reports in any urgent or life-threatening situation.
+                </p>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

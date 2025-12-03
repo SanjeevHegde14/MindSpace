@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Analysis History{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card main-card">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="text-center mb-4" style="color: var(--accent-color-1);">
+                    <i class="fas fa-history me-3"></i> Your Analysis History
+                </h1>
+                <p class="lead text-center mb-5" style="color: var(--text-muted);">
+                    This is a record of all analyses conducted while logged into your account.
+                </p>
+
+                {% if history_data %}
+                    <p class="text-muted small text-end mb-3">
+                        Total Records: {{ history_data | length }}
+                    </p>
+
+                    <div class="accordion" id="historyAccordion">
+                        {% for record in history_data %}
+                        <div class="accordion-item" style="background: var(--card-bg); border-color: var(--border-color);">
+                            <h2 class="accordion-header" id="heading{{ record.id }}">
+                                <button class="accordion-button collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapse{{ record.id }}"
+                                        aria-expanded="false"
+                                        aria-controls="collapse{{ record.id }}"
+                                        style="background-color: var(--background-mid); color: var(--text-color);">
+                                    
+                                    <span class="me-3 fw-bold" style="color: var(--accent-color-2);">
+                                        #{{ loop.index }}
+                                    </span>
+
+                                    <span class="me-auto">
+                                        {{ record.user_analyzed }}
+                                        on
+                                        <span class="badge"
+                                              style="background-color: var(--accent-color-1); color: var(--text-color);">
+                                            {{ record.platform }}
+                                        </span>
+                                    </span>
+
+                                    <span class="badge {% if record.verdict == 'High Concern' %}bg-danger{% else %}bg-success{% endif %} me-3">
+                                        {{ record.verdict }}
+                                    </span>
+
+                                    <span class="small text-muted">
+                                        {{ record.date }}
+                                    </span>
+                                </button>
+                            </h2>
+
+                            <div id="collapse{{ record.id }}"
+                                 class="accordion-collapse collapse"
+                                 aria-labelledby="heading{{ record.id }}"
+                                 data-bs-parent="#historyAccordion">
+                                <div class="accordion-body"
+                                     style="color: var(--text-muted); background: var(--background-start);">
+
+                                    <!-- Summary Metrics -->
+                                    <h5 class="mb-3" style="color: var(--text-color);">Summary Metrics</h5>
+                                    <div class="row g-2 mb-4 small">
+                                        <div class="col-md-3">
+                                            <strong>Verdict:</strong>
+                                            <span class="fw-bold"
+                                                  style="color: {% if record.verdict == 'High Concern' %}var(--color-danger){% else %}var(--color-success){% endif %};">
+                                                {{ record.verdict }}
+                                            </span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Avg. Abnormal Prob:</strong>
+                                            {{ "%.2f"|format(record.avg_prob) }}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Avg. Negative:</strong>
+                                            {{ "%.2f"|format(record.full_results.results.aggregates.avg_neg_sentiment) }}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <strong>Avg. Positive:</strong>
+                                            {{ "%.2f"|format(record.full_results.results.aggregates.avg_pos_sentiment) }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Top Posts -->
+                                    <h5 class="mt-4 mb-2" style="color: var(--text-color);">
+                                        Top Posts (Scraped Data)
+                                    </h5>
+                                    <ul class="list-unstyled mb-3">
+                                        {% if record.full_results.results.posts is defined %}
+                                            {% for post in record.full_results.results.posts[:3] %}
+                                            <li class="p-2 mb-2"
+                                                style="border-left: 3px solid var(--accent-color-2);
+                                                       background: var(--background-mid);
+                                                       border-radius: 5px;">
+                                                <em style="color: var(--text-color);">
+                                                    "{{ post.text[:70] }}..."
+                                                </em><br>
+                                                <small class="text-muted">
+                                                    Prob: {{ "%.2f"|format(post.prob_abnormal) }}
+                                                    |
+                                                    Neg: {{ "%.2f"|format(post.sentiment.neg) }}
+                                                    |
+                                                    Pos: {{ "%.2f"|format(post.sentiment.pos) }}
+                                                </small>
+                                            </li>
+                                            {% endfor %}
+                                        {% else %}
+                                            <li class="text-muted small">
+                                                No post details stored in this record.
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+
+                                    <!-- Download Button -->
+                                    <div class="text-center mt-4">
+                                        <a href="{{ url_for('download_history_report', history_id=record.id) }}"
+                                           class="btn btn-sm"
+                                           style="background-color: var(--color-info); color: white;">
+                                            <i class="fas fa-file-download me-1"></i>
+                                            Download Full Report (PDF)
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                {% else %}
+                    <div class="text-center py-5"
+                         style="background: var(--background-mid); border-radius: 10px;">
+                        <i class="fas fa-box-open fa-3x mb-3" style="color: var(--text-muted);"></i>
+                        <h4 style="color: var(--text-color);">No Analysis History Found</h4>
+                        <p style="color: var(--text-muted);">
+                            Perform an analysis to see your history here.
+                        </p>
+                        <button type="button"
+                                class="btn btn-lg"
+                                style="background-color: var(--accent-color-2); color: white;"
+                                data-bs-toggle="modal"
+                                data-bs-target="#platformModal">
+                            Start Analysis
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

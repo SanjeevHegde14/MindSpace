@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ details.name }} Analysis Input{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Subtle pulse animation for the button while analyzing */
+    @keyframes pulse-analyze {
+        0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(32, 201, 151, 0.6); }
+        70%  { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(32, 201, 151, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(32, 201, 151, 0); }
+    }
+    .analyzing-btn {
+        animation: pulse-analyze 1.2s ease-out infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card main-card">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="text-center mb-4" style="color: var(--accent-color-1);">
+                    <i class="{{ details.icon }} me-3"></i> {{ details.name }} Analysis
+                </h1>
+                <p class="lead text-center mb-5" style="color: var(--text-muted);">
+                    Please enter the public username or profile URL you wish to analyze.
+                </p>
+
+                {% if error %}
+                    <div class="alert alert-danger mt-4">{{ error }}</div>
+                {% endif %}
+
+                <form id="analysis-form" action="{{ url_for('run_analysis') }}" method="POST">
+                    <input type="hidden" name="platform" value="{{ platform }}">
+
+                    <label class="form-label fs-5 mt-3">Username / Profile Identifier</label>
+                    <div class="input-group input-group-lg mb-4">
+                        <span class="input-group-text">@</span>
+                        <input class="form-control" type="text" name="username"
+                               placeholder="{{ details.placeholder }}" required>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button id="run-analysis-btn" type="submit" class="btn btn-lg fw-bold"
+                                style="background-color: var(--accent-color-2); color: white; box-shadow: 0 4px 15px rgba(132, 94, 247, 0.4);">
+                            <i class="fas fa-chart-line me-2"></i> Run Analysis
+                        </button>
+                    </div>
+                </form>
+
+                <p class="small text-muted text-center mt-4">
+                    Note: Analysis time varies. Please be patient while we scrape and process the data.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script_extra %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('analysis-form');
+        const btn = document.getElementById('run-analysis-btn');
+
+        if (form && btn) {
+            form.addEventListener('submit', function () {
+                // Prevent changing multiple times if user somehow triggers again
+                if (btn.dataset.loading === "true") return;
+
+                btn.dataset.loading = "true";
+                btn.disabled = true;
+                btn.classList.add('analyzing-btn');
+
+                // Change inner HTML to spinner + text
+                btn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Analyzing...
+                `;
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card main-card">
+            <div class="card-body p-4 p-md-5">
+
+                <h1 class="mb-3" style="color: var(--accent-color-1);">
+                    <i class="fas fa-user-shield me-2"></i> Privacy Policy
+                </h1>
+                <p class="lead text-muted mb-4">
+                    MindSpace is designed as a technical analysis tool and respects your privacy. 
+                    All processing is performed only on public data that you explicitly choose to analyze.
+                </p>
+
+                <hr style="border-color: var(--border-color); opacity: 0.3;">
+
+                <!-- 1. Scope of This Policy -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">1. Scope of This Policy</h3>
+                <p class="text-color">
+                    This Privacy Policy applies to the MindSpace web application, including:
+                </p>
+                <ul class="text-color">
+                    <li>Accounts you create (username and password).</li>
+                    <li>Analysis history generated while you are logged in.</li>
+                    <li>Public social media content fetched based on usernames or profile URLs you provide.</li>
+                </ul>
+
+                <!-- 2. Data Sources -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">2. Data Sources</h3>
+                <p class="text-color">
+                    MindSpace only analyzes <strong>publicly available</strong> content:
+                </p>
+                <ul class="text-color">
+                    <li>Public Reddit comments from the username you enter.</li>
+                    <li>Public Instagram posts/captions from a username or profile URL.</li>
+                    <li>Public tweets from a Twitter/X handle.</li>
+                </ul>
+                <p class="text-color mb-3">
+                    No private messages, private profiles, or hidden data are accessed by this system.
+                </p>
+
+                <!-- 3. Data Storage -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">3. Data Storage</h3>
+                <p class="text-color">
+                    When you are <strong>logged in</strong>, the following information may be stored in the local
+                    SQLite database:
+                </p>
+                <ul class="text-color">
+                    <li>Your account details: chosen username and a securely hashed password.</li>
+                    <li>Analysis records: platform, target username/profile, verdict, and aggregated scores.</li>
+                    <li>Full JSON results for each analysis, including post texts and computed metrics.</li>
+                </ul>
+                <p class="text-color">
+                    This data is stored <strong>locally</strong> for history and PDF report generation.  
+                    We do <strong>not</strong> sell, rent, or share these records with third parties.
+                </p>
+
+                <!-- 4. Live Analysis & Sessions -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">4. Live Analysis & Session Data</h3>
+                <p class="text-color">
+                    During a live analysis, data is temporarily kept in the current session:
+                </p>
+                <ul class="text-color">
+                    <li>Scraped posts and computed scores are held in memory to render graphs and summaries.</li>
+                    <li>The latest analysis may be placed in the session to support instant PDF download.</li>
+                </ul>
+                <p class="text-color mb-3">
+                    After the session ends or you leave the site, this temporary session data is discarded.  
+                    Only records you explicitly run while logged in are stored in your history.
+                </p>
+
+                <!-- 5. Data Deletion -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">5. Data Deletion & Account Removal</h3>
+                <p class="text-color">
+                    You may request deletion of:
+                </p>
+                <ul class="text-color">
+                    <li>Your user account (username and login credentials).</li>
+                    <li>All associated analysis history and stored JSON results.</li>
+                </ul>
+                <p class="text-color mb-3">
+                    To request deletion, please contact the project maintainer at  
+                    <a href="mailto:support@mindspace.demo" style="color: var(--accent-color-2);">
+                        support@mindspace.demo
+                    </a>.
+                </p>
+
+                <!-- 6. Use Disclaimer -->
+                <h3 class="mt-4" style="color: var(--accent-color-2);">6. Use Disclaimer</h3>
+                <p class="text-color mb-0">
+                    MindSpace is a <strong>technical demonstration tool</strong>. The analyses and reports it generates
+                    are based on statistical and linguistic models and are <strong>not</strong> medical, clinical,
+                    or psychological diagnoses. Do not use the results as a substitute for professional help.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

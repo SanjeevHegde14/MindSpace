@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+{% block title %}Analysis Results for {{ user }}{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .summary-card {
+        background: var(--background-mid);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .summary-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-color);
+    }
+    .summary-card .value.verdict-high {
+        color: var(--color-danger);
+    }
+    .summary-card .value.verdict-low {
+        color: var(--color-success);
+    }
+    .summary-card .label {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+    .post-item {
+        background: var(--background-start);
+        border-radius: 8px;
+        border-left: 4px solid var(--accent-color-1);
+        transition: all 0.2s ease;
+    }
+    .post-item:hover {
+        background: var(--background-mid);
+    }
+    .sentiment-badge {
+        font-size: 0.75rem;
+        padding: 0.3em 0.6em;
+        margin-right: 5px;
+    }
+    .progress {
+        height: 8px;
+        background-color: var(--background-end);
+    }
+    .text-color {
+        color: var(--text-color) !important;
+    }
+    .badge-dark-text {
+        color: #000000 !important;
+    }
+    #trendChartWrapper, #avgSentimentWrapper {
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card main-card">
+    <div class="card-body p-4 p-md-5">
+        <h3 class="text-center mb-4" style="color:var(--text-color)">
+            Analysis for <strong style="color: var(--accent-color-1);">{{ user }}</strong> on {{ source }}
+        </h3>
+        <p class="text-center small text-muted">Generated: {{ date_generated }}</p>
+        <hr style="border-color: var(--border-color); opacity: 0.25; margin-bottom: 3rem !important;">
+
+        <div class="row g-3 mb-4 align-items-center">
+            <div class="col-md-8">
+                <div class="summary-card h-100 p-4">
+                    <div class="label fs-5 mb-2">Overall Analysis Verdict</div>
+                    <div class="value display-4 {% if results.verdict == 'High Concern' %}verdict-high{% else %}verdict-low{% endif %}">
+                        {{ results.verdict }}
+                        {% if results.verdict == 'High Concern' %}
+                            <i class="fas fa-exclamation-triangle ms-2" style="font-size: 0.7em;"></i>
+                            <a href="/risk_info" class="btn btn-sm btn-danger ms-3" style="background-color: var(--color-danger); border-color: var(--color-danger); color: white;">
+                                View Warning Policy
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-grid">
+                    <a href="/download_report" class="btn btn-lg fw-bold" style="background-color: var(--color-info); color: white; box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);">
+                        <i class="fas fa-file-download me-2"></i> Download Report (PDF)
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4 text-center">
+            <div class="col-md-3 col-6">
+                <div class="summary-card h-100">
+                    <div class="value" style="color: var(--color-danger);">
+                        {{ "%.1f"|format(results.aggregates.avg_abnormal_prob * 100) }}%
+                    </div>
+                    <div class="label">Avg. Abnormal Prob.</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="summary-card h-100">
+                    <div class="value" style="color: var(--color-warning);">
+                        {{ "%.1f"|format(results.aggregates.avg_neg_sentiment * 100) }}%
+                    </div>
+                    <div class="label">Avg. Negative Sentiment</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="summary-card h-100">
+                    <div class="value" style="color: var(--color-success);">
+                        {{ "%.1f"|format(results.aggregates.avg_pos_sentiment * 100) }}%
+                    </div>
+                    <div class="label">Avg. Positive Sentiment</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="summary-card h-100">
+                    <div class="value" style="color: var(--color-info);">
+                        {{ results.aggregates.post_count }}
+                    </div>
+                    <div class="label">Posts Analyzed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-lg-8">
+                <div class="summary-card h-100">
+                    <h5 class="mb-3" style="color: var(--text-color);">Abnormality & Negative Sentiment Over Time</h5>
+                    <div id="trendChartWrapper">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="summary-card h-100">
+                    <h5 class="mb-3" style="color: var(--text-color);">Average Sentiment Breakdown</h5>
+                    <div id="avgSentimentWrapper">
+                        <canvas id="avgSentimentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h5 class="mb-3" style="color: var(--text-color)">Analyzed Posts Details</h5>
+            <div class="post-list">
+                {% for post in results.posts %}
+                <div class="p-3 mb-3 post-item" data-prob="{{ post.prob_abnormal }}">
+                    <p class="mb-2 fst-italic small text-color">"{{ post.text }}"</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-wrap">
+                            <span class="badge rounded-pill sentiment-badge badge-dark-text" style="background-color: var(--color-danger)!important;">
+                                Neg: {{ "%.0f"|format(post.sentiment.neg * 100) }}%
+                            </span>
+                            <span class="badge rounded-pill sentiment-badge badge-dark-text" style="background-color: var(--color-success)!important;">
+                                Pos: {{ "%.0f"|format(post.sentiment.pos * 100) }}%
+                            </span>
+                            <span class="badge rounded-pill sentiment-badge badge-dark-text" style="background-color: var(--color-info)!important;">
+                                Neu: {{ "%.0f"|format(post.sentiment.neu * 100) }}%
+                            </span>
+                        </div>
+                        <div class="w-25 text-end">
+                            <small class="d-block text-muted">{{ post.date }}</small>
+                            <small class="text-color">Abnormal Prob. ({{ "%.0f"|format(post.prob_abnormal * 100) }}%)</small>
+                            <div class="progress">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ post.prob_abnormal * 100 }}%;" aria-valuenow="{{ post.prob_abnormal * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block script_extra %}
+<script>
+    let trendChart = null;
+    let avgSentimentChart = null;
+    const resultData = {{ results | tojson }};
+
+    function getThemeColors() {
+        const styles = getComputedStyle(document.documentElement);
+        return {
+            danger: styles.getPropertyValue('--color-danger').trim() || '#e03131',
+            warning: styles.getPropertyValue('--color-warning').trim() || '#fab005',
+            success: styles.getPropertyValue('--color-success').trim() || '#37b24d',
+            info: styles.getPropertyValue('--color-info').trim() || '#228be6',
+            text: styles.getPropertyValue('--text-color').trim() || '#ffffff',
+            muted: styles.getPropertyValue('--text-muted').trim() || '#adb5bd',
+            grid: styles.getPropertyValue('--border-color').trim() || '#343a40'
+        };
+    }
+
+    function renderCharts() {
+        const colors = getThemeColors();
+
+        const trendWrapper = document.getElementById('trendChartWrapper');
+        const avgWrapper = document.getElementById('avgSentimentWrapper');
+
+        if (trendChart) trendChart.destroy();
+        if (avgSentimentChart) avgSentimentChart.destroy();
+
+        if (document.getElementById('trendChart')) {
+            document.getElementById('trendChart').remove();
+        }
+        if (document.getElementById('avgSentimentChart')) {
+            document.getElementById('avgSentimentChart').remove();
+        }
+
+        const trendCanvas = document.createElement('canvas');
+        trendCanvas.id = 'trendChart';
+        trendCanvas.style.height = '300px';
+        trendWrapper.appendChild(trendCanvas);
+
+        const avgCanvas = document.createElement('canvas');
+        avgCanvas.id = 'avgSentimentChart';
+        avgCanvas.style.height = '300px';
+        avgWrapper.appendChild(avgCanvas);
+
+        const tctx = trendCanvas.getContext('2d');
+        const actx = avgCanvas.getContext('2d');
+
+        const gradient = tctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, colors.danger + '99');
+        gradient.addColorStop(1, colors.danger + '0D');
+
+        trendChart = new Chart(tctx, {
+            type: 'line',
+            data: {
+                labels: resultData.graph_data.labels,
+                datasets: [
+                    {
+                        label: 'Abnormal Probability',
+                        data: resultData.graph_data.abnormal_prob,
+                        borderColor: colors.danger,
+                        backgroundColor: gradient,
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Negative Sentiment',
+                        data: resultData.graph_data.neg_sentiment,
+                        borderColor: colors.warning,
+                        backgroundColor: 'transparent',
+                        tension: 0.4,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1,
+                        ticks: { color: colors.muted },
+                        grid: { color: colors.grid }
+                    },
+                    x: {
+                        ticks: { color: colors.muted },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: colors.text } }
+                }
+            }
+        });
+
+        const agg = resultData.aggregates;
+        avgSentimentChart = new Chart(actx, {
+            type: 'bar',
+            data: {
+                labels: ['Negative', 'Positive', 'Neutral'],
+                datasets: [{
+                    data: [agg.avg_neg_sentiment, agg.avg_pos_sentiment, agg.avg_neu_sentiment],
+                    backgroundColor: [colors.danger, colors.success, colors.info]
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 1,
+                        ticks: { color: colors.muted },
+                        grid: { color: colors.grid }
+                    },
+                    y: {
+                        ticks: { color: colors.muted },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        renderCharts();
+
+        document.querySelectorAll('.post-item').forEach(item => {
+            const prob = parseFloat(item.dataset.prob);
+            if (prob >= resultData.threshold) {
+                item.style.borderLeft = '4px solid var(--color-danger)';
+            } else if (prob >= resultData.threshold * 0.8) {
+                item.style.borderLeft = '4px solid var(--color-warning)';
+            }
+        });
+
+        window.addEventListener('themechange', renderCharts);
+    });
+</script>
+{% endblock %}

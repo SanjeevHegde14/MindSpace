@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}FAQ - Frequently Asked Questions{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card main-card">
+        <div class="card-body p-5">
+            <h1 class="mb-3">
+                <i class="fas fa-question-circle me-2"></i>
+                FAQ - Frequently Asked Questions
+            </h1>
+
+            <p class="mb-3">
+                Here are answers to common questions about data, privacy, and how MindSpace works.
+            </p>
+
+            <hr style="border-color: var(--border-color);">
+
+            <div class="mb-4">
+                <h3 class="mb-2" style="color: var(--accent-color-2);">
+                    Is the report a medical diagnosis?
+                </h3>
+                <p>
+                    No. MindSpace is a technical demonstration and educational tool only.
+                    The results are statistical indicators based on language patterns and
+                    should <strong>never</strong> be treated as a medical, psychological,
+                    or clinical diagnosis. For any mental health concerns, always consult
+                    a qualified professional.
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="mb-2" style="color: var(--accent-color-2);">
+                    What data is stored?
+                </h3>
+                <p>
+                    If you are logged in, MindSpace stores the full analysis result in the
+                    SQLite database linked to your user account. This can include:
+                </p>
+                <ul>
+                    <li>Analyzed post texts retrieved during that session</li>
+                    <li>Sentiment scores (positive, negative, neutral)</li>
+                    <li>Abnormality/risk probability values</li>
+                    <li>Summary verdict and generated statistics</li>
+                </ul>
+                <p>
+                    This information is stored only to provide a history view and report
+                    downloads for your account.
+                </p>
+            </div>
+
+            <div class="mb-2">
+                <h3 class="mb-2" style="color: var(--accent-color-2);">
+                    Why did the chart look strange before?
+                </h3>
+                <p>
+                    In earlier versions, the results chart could appear distorted because
+                    old graph data was not fully cleared before redrawing. This was
+                    related to how Chart.js reused the existing canvas element.
+                </p>
+                <p>
+                    The issue is resolved by explicitly destroying the previous chart
+                    instance and recreating the canvas on each new analysis. This ensures
+                    that every result is rendered from a clean state with correct data.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

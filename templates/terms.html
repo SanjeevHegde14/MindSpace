@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service{% endblock %}
+
+{% block content %}
+<div class="card main-card">
+    <div class="card-body p-5">
+
+        <!-- HEADING -->
+        <h1 class="mb-3" style="color: var(--accent-color-1);">
+            <i class="fas fa-file-contract me-3"></i> Terms of Service
+        </h1>
+
+        <p class="lead text-muted mb-4">
+            By accessing or using MindSpace, you acknowledge and agree to the following terms and conditions.
+        </p>
+
+        <hr style="border-color: var(--border-color); opacity: 0.3; margin: 2rem 0;">
+
+        <!-- SECTION 1 -->
+        <h3 style="color: var(--accent-color-2);">
+            <i class="fas fa-shield-alt me-2"></i> 1. Acceptable Use Policy
+        </h3>
+        <p class="text-color">
+            You agree not to misuse MindSpace or engage in activities that may harm the platform, its users, or the data it processes. This includes, but is not limited to:
+        </p>
+        <ul class="text-color">
+            <li>Using the service for harassment, profiling, or defamatory purposes.</li>
+            <li>Engaging in automated, large-scale scraping or data harvesting of third-party platforms.</li>
+            <li>Attempting to bypass security, rate limits, or platform restrictions.</li>
+            <li>Violating the Terms of Service of Reddit, Instagram, Twitter/X, or any connected platform.</li>
+        </ul>
+
+        <hr style="border-color: var(--border-color); opacity: 0.15; margin: 2rem 0;">
+
+        <!-- SECTION 2 -->
+        <h3 style="color: var(--accent-color-2);">
+            <i class="fas fa-exclamation-circle me-2"></i> 2. Informational-Only Disclaimer
+        </h3>
+        <p class="text-color">
+            MindSpace provides analysis results strictly for <strong>informational and educational purposes</strong>. 
+            The platform does <strong>not</strong> provide medical, psychological, or professional advice. 
+            The output should never be used for:
+        </p>
+        <ul class="text-color">
+            <li>Diagnosing mental health conditions.</li>
+            <li>Making legal, medical, or emergency decisions.</li>
+            <li>Labeling or categorizing individuals without professional evaluation.</li>
+        </ul>
+
+        <p class="text-color">
+            All analysis is generated using statistical models and sentiment tools. Results may be inaccurate, incomplete, or misleading if the scraped content is limited or out of context.
+        </p>
+
+        <hr style="border-color: var(--border-color); opacity: 0.15; margin: 2rem 0;">
+
+        <!-- SECTION 3 -->
+        <h3 style="color: var(--accent-color-2);">
+            <i class="fas fa-info-circle me-2"></i> 3. No Warranty
+        </h3>
+        <p class="text-color">
+            MindSpace is provided <strong>"as-is"</strong> without any express or implied warranties. 
+            This includes, but is not limited to:
+        </p>
+        <ul class="text-color">
+            <li>Accuracy or reliability of analysis results.</li>
+            <li>Continuous availability or error-free operation.</li>
+            <li>Compatibility with third-party services.</li>
+        </ul>
+
+        <hr style="border-color: var(--border-color); opacity: 0.15; margin: 2rem 0;">
+
+        <!-- SECTION 4 -->
+        <h3 style="color: var(--accent-color-2);">
+            <i class="fas fa-user-lock me-2"></i> 4. User Responsibility
+        </h3>
+        <p class="text-color">
+            You are solely responsible for how you use or interpret MindSpace reports. 
+            The platform creators are not accountable for:
+        </p>
+        <ul class="text-color">
+            <li>Decisions made based on system output.</li>
+            <li>Incorrect interpretation of statistical results.</li>
+            <li>Actions taken towards yourself or others based on analyses.</li>
+        </ul>
+
+        <hr style="border-color: var(--border-color); opacity: 0.15; margin: 2rem 0;">
+
+        <!-- SECTION 5 -->
+        <h3 style="color: var(--accent-color-2);">
+            <i class="fas fa-envelope-open-text me-2"></i> 5. Contact & Questions
+        </h3>
+        <p class="text-color mb-0">
+            If you have any concerns about these Terms, please reach out to:
+            <br>
+            <a href="mailto:support@mindspace.demo" style="color: var(--accent-color-1); font-weight: 600;">
+                support@mindspace.demo
+            </a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}
