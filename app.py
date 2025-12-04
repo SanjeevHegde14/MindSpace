@@ -44,7 +44,7 @@ REDDIT_USER_AGENT = os.getenv('REDDIT_USER_AGENT')
 APIFY_API_TOKEN = os.getenv('APIFY_API_TOKEN')
 
 # Thresholds
-THRESHOLD_ABNORMAL = 0.75
+THRESHOLD_ABNORMAL = 0.65
 
 # Platform configuration (single source of truth)
 PLATFORMS = {
@@ -210,7 +210,6 @@ def analyze_posts(posts):
         'threshold': THRESHOLD_ABNORMAL
     }
 
-
 # --- Scraping Functions (Real Logic Enabled) ---
 
 async def fetch_user_comments_async(username, limit=25):
@@ -226,18 +225,72 @@ async def fetch_user_comments_async(username, limit=25):
         try:
             user = await reddit.redditor(username)
             await user.load()
-
         except Exception:
             raise ValueError(f"Reddit user '{username}' not found or API error.")
 
+        # 1) Fetch comments
         async for comment in user.comments.new(limit=limit):
             if comment.created_utc and comment.body:
-                posts.append({'text': comment.body, 'timestamp': comment.created_utc})
+                posts.append({
+                    'text': comment.body,
+                    'timestamp': comment.created_utc
+                })
+
+        # 2) Fetch submissions (posts) – use title + selftext as caption
+        async for submission in user.submissions.new(limit=limit):
+            if not submission.created_utc:
+                continue
+
+            parts = []
+            if submission.title:
+                parts.append(submission.title.strip())
+
+            selftext = getattr(submission, "selftext", "") or ""
+            if selftext.strip() and selftext.strip().lower() not in ("[deleted]", "[removed]"):
+                parts.append(selftext.strip())
+
+            caption = " - ".join(parts).strip()
+            if caption:
+                posts.append({
+                    'text': caption,
+                    'timestamp': submission.created_utc
+                })
+
+    posts.sort(key=lambda x: x['timestamp'])
     return posts
 
 
 def fetch_user_comments(username, limit=25):
     return asyncio.run(fetch_user_comments_async(username, limit))
+
+
+# --- Scraping Functions (Real Logic Enabled) ---
+
+# async def fetch_user_comments_async(username, limit=25):
+#     posts = []
+#     if not all([REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT]):
+#         raise RuntimeError("Reddit API credentials (CLIENT_ID, SECRET, USER_AGENT) are not set. Cannot fetch data.")
+
+#     async with asyncpraw.Reddit(
+#         client_id=REDDIT_CLIENT_ID,
+#         client_secret=REDDIT_CLIENT_SECRET,
+#         user_agent=REDDIT_USER_AGENT,
+#     ) as reddit:
+#         try:
+#             user = await reddit.redditor(username)
+#             await user.load()
+
+#         except Exception:
+#             raise ValueError(f"Reddit user '{username}' not found or API error.")
+
+#         async for comment in user.comments.new(limit=limit):
+#             if comment.created_utc and comment.body:
+#                 posts.append({'text': comment.body, 'timestamp': comment.created_utc})
+#     return posts
+
+
+# def fetch_user_comments(username, limit=25):
+#     return asyncio.run(fetch_user_comments_async(username, limit))
 
 def fetch_instagram_captions(profile_input, limit=10):
     if not APIFY_API_TOKEN:
