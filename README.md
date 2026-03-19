@@ -6,6 +6,11 @@ MindSpace is a web application designed to analyze textual data for mental healt
 
 The project consists of a Flask web interface and a data science pipeline. The model was trained on dataset aggregations (including Reddit data) to classify text into specific mental health categories.
 
+Some screenshots:
+<img width="1076" height="716" alt="image" src="https://github.com/user-attachments/assets/34094451-27c4-477d-9eed-fcea0f2dfe0b" />
+<img width="641" height="363" alt="image" src="https://github.com/user-attachments/assets/00ae64c4-5609-4a60-b33e-e9525a32a928" />
+<img width="942" height="298" alt="image" src="https://github.com/user-attachments/assets/4c805b4b-f555-45c1-8f7c-b0f1408162e5" />
+
 **Key Features:**
 * **Text Analysis Engine:** Real-time sentiment and risk assessment using a serialized Naive Bayes model (`model_nb.pkl`).
 * **User Dashboard:** specialized views for inputting text, viewing results, and tracking history.
@@ -31,9 +36,6 @@ The project consists of a Flask web interface and a data science pipeline. The m
 ├── *.ipynb                 # Notebooks for model training & data extraction
 └── ...
 ```
-Some screenshots:
-<img width="1076" height="716" alt="image" src="https://github.com/user-attachments/assets/34094451-27c4-477d-9eed-fcea0f2dfe0b" />
-<img width="641" height="363" alt="image" src="https://github.com/user-attachments/assets/00ae64c4-5609-4a60-b33e-e9525a32a928" />
-<img width="942" height="298" alt="image" src="https://github.com/user-attachments/assets/4c805b4b-f555-45c1-8f7c-b0f1408162e5" />
+
 
 
